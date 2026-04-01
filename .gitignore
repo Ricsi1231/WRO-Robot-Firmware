@@ -53,3 +53,5 @@ dependencies.lock
 
 # Debug information files
 *.dwo
+
+*.vscode
