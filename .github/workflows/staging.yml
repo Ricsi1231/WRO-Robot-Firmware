@@ -1,0 +1,67 @@
+name: Staging Pipeline
+
+on:
+  push:
+    branches: [staging]
+
+jobs:
+  quality-checks:
+    name: Quality Checks & Build
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:v5.4.1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Format Check
+        shell: bash
+        run: |
+          . $IDF_PATH/export.sh
+          bash scripts/format.sh --check
+
+      - name: Cppcheck
+        shell: bash
+        run: |
+          apt-get update && apt-get install -y cppcheck
+          . $IDF_PATH/export.sh
+          bash scripts/cppcheck.sh
+
+      - name: Build
+        shell: bash
+        run: |
+          . $IDF_PATH/export.sh
+          bash scripts/build.sh
+
+  release:
+    name: Create Release
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:v5.4.1
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Release
+        shell: bash
+        run: |
+          . $IDF_PATH/export.sh
+          bash scripts/build.sh release
+
+      - name: Read Version
+        id: version
+        shell: bash
+        run: echo "version=$(cat VERSION.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          files: build/WRO_Robot_Software.bin
+          generate_release_notes: true

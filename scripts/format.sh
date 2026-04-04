@@ -12,6 +12,7 @@ echo "Running clang-format..."
 # Find source files in main and components
 FILES=$(find "$PROJECT_ROOT/main" \
              "$PROJECT_ROOT/components" \
+             "$PROJECT_ROOT/scripts" \
     -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" -o -name "*.c" \) \
     2>/dev/null || true)
 
