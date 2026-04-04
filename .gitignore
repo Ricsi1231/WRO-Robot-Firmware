@@ -1,3 +1,17 @@
+# Build output
+build/
+
+# ESP-IDF generated config (sdkconfig.defaults is the source of truth)
+sdkconfig
+sdkconfig.old
+
+# Component manager
+managed_components/
+dependencies.lock
+
+# Cache
+.cache/
+
 # Prerequisites
 *.d
 
@@ -37,5 +51,7 @@
 *.out
 *.app
 
-# debug information files
+# Debug information files
 *.dwo
+
+*.vscode
