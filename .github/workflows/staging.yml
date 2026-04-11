@@ -15,11 +15,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install clang-format
+        shell: bash
+        run: apt-get update && apt-get install -y clang-format
+
       - name: Format Check
         shell: bash
-        run: |
-          . $IDF_PATH/export.sh
-          bash scripts/format.sh --check
+        run: bash scripts/format.sh --check
 
       - name: Cppcheck
         shell: bash
