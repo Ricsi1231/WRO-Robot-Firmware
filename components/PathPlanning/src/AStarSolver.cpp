@@ -28,9 +28,7 @@ uint32_t AStarSolver::SearchNode::getScore() const { return g + h; }
 bool AStarSolver::isValidNode(int32_t node) const { return node >= 0 && node < static_cast<int32_t>(waypoints.size()); }
 
 int32_t AStarSolver::findInSearchList(const std::vector<int32_t>& list, int32_t waypointIdx) const {
-    auto it = std::find_if(list.begin(), list.end(), [&](int32_t idx) {
-        return searchPool[idx].waypointIdx == waypointIdx;
-    });
+    auto it = std::find_if(list.begin(), list.end(), [&](int32_t idx) { return searchPool[idx].waypointIdx == waypointIdx; });
     return (it != list.end()) ? *it : NO_PARENT;
 }
 
@@ -90,8 +88,7 @@ esp_err_t AStarSolver::addEdge(int32_t from, int32_t to) {
         return ESP_ERR_INVALID_ARG;
     }
 
-    bool edgeExists = std::any_of(waypoints[from].edges.begin(), waypoints[from].edges.end(),
-                                   [to](const WaypointEdge& edge) { return edge.targetNode == to; });
+    bool edgeExists = std::any_of(waypoints[from].edges.begin(), waypoints[from].edges.end(), [to](const WaypointEdge& edge) { return edge.targetNode == to; });
     if (edgeExists) {
         ESP_LOGW(TAG, "Edge %ld->%ld already exists", static_cast<long>(from), static_cast<long>(to));
         return ESP_OK;
