@@ -1,8 +1,3 @@
-/**
- * @file Heuristic.cpp
- * @brief Implementation of heuristic distance functions.
- */
-
 #include "Heuristic.hpp"
 
 #include <algorithm>

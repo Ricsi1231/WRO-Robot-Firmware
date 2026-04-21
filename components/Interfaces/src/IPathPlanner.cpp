@@ -1,8 +1,3 @@
-/**
- * @file IPathPlanner.cpp
- * @brief Implementation of GridPosition operators.
- */
-
 #include "IPathPlanner.hpp"
 
 namespace WroRobotSoftware {

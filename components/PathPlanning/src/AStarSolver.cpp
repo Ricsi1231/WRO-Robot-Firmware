@@ -1,8 +1,3 @@
-/**
- * @file AStarSolver.cpp
- * @brief Implementation of the A* pathfinding algorithm on a waypoint graph.
- */
-
 #include "AStarSolver.hpp"
 
 #include <algorithm>
@@ -112,7 +107,7 @@ esp_err_t AStarSolver::addEdge(int32_t from, int32_t to) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  // Check for duplicate edge
+
   for (const auto& edge : waypoints[from].edges) {
     if (edge.targetNode == to) {
       ESP_LOGW(TAG, "Edge %ld->%ld already exists",
@@ -177,15 +172,15 @@ esp_err_t AStarSolver::findPath(int32_t startNode, int32_t targetNode,
     return ESP_OK;
   }
 
-  // Reset search pool
+
   searchPool.clear();
   searchPool.reserve(waypoints.size());
 
-  // Open and closed lists store indices into searchPool
+
   std::vector<int32_t> openList;
   std::vector<int32_t> closedList;
 
-  // Create start search node
+
   SearchNode startSearch;
   startSearch.g = 0;
   startSearch.h = computeHeuristic(waypoints[startNode].position,
@@ -197,7 +192,7 @@ esp_err_t AStarSolver::findPath(int32_t startNode, int32_t targetNode,
   openList.push_back(0);
 
   while (!openList.empty()) {
-    // Find search node with lowest f-score in open list
+
     size_t bestOpenIdx = 0;
     uint32_t bestScore = searchPool[openList[0]].getScore();
 
@@ -212,7 +207,7 @@ esp_err_t AStarSolver::findPath(int32_t startNode, int32_t targetNode,
     int32_t currentSearchIdx = openList[bestOpenIdx];
     int32_t currentWpIdx = searchPool[currentSearchIdx].waypointIdx;
 
-    // Check if we reached the target
+
     if (currentWpIdx == targetNode) {
       outPath = reconstructPath(currentSearchIdx);
       ESP_LOGI(TAG, "Path found from node %ld to %ld, length=%u",
@@ -221,37 +216,37 @@ esp_err_t AStarSolver::findPath(int32_t startNode, int32_t targetNode,
       return ESP_OK;
     }
 
-    // Move current from open to closed
+
     openList.erase(openList.begin() + bestOpenIdx);
     closedList.push_back(currentSearchIdx);
 
-    // Expand neighbors via edges
+
     for (const auto& edge : waypoints[currentWpIdx].edges) {
       int32_t neighborWpIdx = edge.targetNode;
 
-      // Skip blocked waypoints
+
       if (waypoints[neighborWpIdx].blocked) {
         continue;
       }
 
-      // Skip if already in closed list
+
       if (findInSearchList(closedList, neighborWpIdx) != NO_PARENT) {
         continue;
       }
 
       uint32_t tentativeG = searchPool[currentSearchIdx].g + edge.weight;
 
-      // Check if neighbor is already in open list
+
       int32_t existingIdx = findInSearchList(openList, neighborWpIdx);
 
       if (existingIdx != NO_PARENT) {
-        // Update if we found a better path
+
         if (tentativeG < searchPool[existingIdx].g) {
           searchPool[existingIdx].g = tentativeG;
           searchPool[existingIdx].parentIndex = currentSearchIdx;
         }
       } else {
-        // Create new search node
+
         SearchNode neighborSearch;
         neighborSearch.g = tentativeG;
         neighborSearch.h = computeHeuristic(waypoints[neighborWpIdx].position,
