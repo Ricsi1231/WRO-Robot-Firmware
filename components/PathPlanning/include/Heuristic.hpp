@@ -20,9 +20,9 @@ namespace PathPlanning {
  * @brief Available heuristic functions for pathfinding.
  */
 enum class HeuristicType {
-  Manhattan,   ///< Sum of absolute differences (L1 norm)
-  Euclidean,   ///< Straight-line distance (L2 norm)
-  Octagonal    ///< Chebyshev-like distance
+    Manhattan,  ///< Sum of absolute differences (L1 norm)
+    Euclidean,  ///< Straight-line distance (L2 norm)
+    Octagonal   ///< Chebyshev-like distance
 };
 
 /**
@@ -30,31 +30,31 @@ enum class HeuristicType {
  * @brief Static utility providing distance heuristic calculations.
  */
 struct Heuristic {
-  Heuristic() = delete;
+    Heuristic() = delete;
 
-  /**
-   * @brief Manhattan distance (L1 norm).
-   * @param source Starting position.
-   * @param target Goal position.
-   * @return Estimated cost as sum of absolute coordinate differences.
-   */
-  static uint32_t manhattan(GridPosition source, GridPosition target);
+    /**
+     * @brief Manhattan distance (L1 norm).
+     * @param source Starting position.
+     * @param target Goal position.
+     * @return Estimated cost as sum of absolute coordinate differences.
+     */
+    static uint32_t manhattan(GridPosition source, GridPosition target);
 
-  /**
-   * @brief Euclidean distance (L2 norm).
-   * @param source Starting position.
-   * @param target Goal position.
-   * @return Estimated cost as straight-line distance.
-   */
-  static uint32_t euclidean(GridPosition source, GridPosition target);
+    /**
+     * @brief Euclidean distance (L2 norm).
+     * @param source Starting position.
+     * @param target Goal position.
+     * @return Estimated cost as straight-line distance.
+     */
+    static uint32_t euclidean(GridPosition source, GridPosition target);
 
-  /**
-   * @brief Octagonal distance (Chebyshev-like).
-   * @param source Starting position.
-   * @param target Goal position.
-   * @return Estimated cost suitable for diagonal movement.
-   */
-  static uint32_t octagonal(GridPosition source, GridPosition target);
+    /**
+     * @brief Octagonal distance (Chebyshev-like).
+     * @param source Starting position.
+     * @param target Goal position.
+     * @return Estimated cost suitable for diagonal movement.
+     */
+    static uint32_t octagonal(GridPosition source, GridPosition target);
 };
 
 }  // namespace PathPlanning
