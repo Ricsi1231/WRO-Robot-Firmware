@@ -163,16 +163,9 @@ esp_err_t AStarSolver::findPath(int32_t startNode, int32_t targetNode, Path& out
     openList.push_back(0);
 
     while (!openList.empty()) {
-        size_t bestOpenIdx = 0;
-        uint32_t bestScore = searchPool[openList[0]].getScore();
-
-        for (size_t i = 1; i < openList.size(); i++) {
-            uint32_t score = searchPool[openList[i]].getScore();
-            if (score < bestScore) {
-                bestScore = score;
-                bestOpenIdx = i;
-            }
-        }
+        auto bestIt = std::min_element(openList.begin(), openList.end(),
+                                       [&](int32_t left, int32_t right) { return searchPool[left].getScore() < searchPool[right].getScore(); });
+        size_t bestOpenIdx = static_cast<size_t>(std::distance(openList.begin(), bestIt));
 
         int32_t currentSearchIdx = openList[bestOpenIdx];
         int32_t currentWpIdx = searchPool[currentSearchIdx].waypointIdx;

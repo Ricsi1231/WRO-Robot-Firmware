@@ -173,13 +173,6 @@ uint32_t ServoChannel::angleToPulseTicks(float angleDeg) const {
 
     float pulseUs = config.minPulseUs + fraction * (config.maxPulseUs - config.minPulseUs);
 
-    if (pulseUs < config.minPulseUs) {
-        pulseUs = config.minPulseUs;
-    }
-    if (pulseUs > config.maxPulseUs) {
-        pulseUs = config.maxPulseUs;
-    }
-
     return static_cast<uint32_t>((pulseUs / periodUs) * static_cast<float>(totalTicks) + 0.5f);
 }
 
