@@ -6,13 +6,13 @@
 namespace WroRobotSoftware {
 namespace GpioInterruptManager {
 
-GpioInterruptManager::GpioInterruptManager(
-    const GpioInterruptManagerConfig& config)
-    : config(config) {}
+GpioInterruptManager::GpioInterruptManager(const GpioInterruptManagerConfig& config) : config(config) {}
 
 GpioInterruptManager::~GpioInterruptManager() {
+    taskRunning = false;
+
     if (taskHandle != nullptr) {
-        vTaskDelete(taskHandle);
+        vTaskDelay(pdMS_TO_TICKS(DISPATCH_TIMEOUT_MS * 2));
         taskHandle = nullptr;
     }
 
@@ -51,10 +51,10 @@ esp_err_t GpioInterruptManager::init() {
         return ESP_ERR_NO_MEM;
     }
 
-    BaseType_t taskRet =
-        xTaskCreate(dispatchTask, "gpio_int_mgr", config.taskStackSize, this,
-                    config.taskPriority, &taskHandle);
+    taskRunning = true;
+    BaseType_t taskRet = xTaskCreate(dispatchTask, "gpio_int_mgr", config.taskStackSize, this, config.taskPriority, &taskHandle);
     if (taskRet != pdPASS) {
+        taskRunning = false;
         ESP_LOGE(TAG, "Failed to create dispatch task");
         vQueueDelete(eventQueue);
         eventQueue = nullptr;
@@ -67,9 +67,7 @@ esp_err_t GpioInterruptManager::init() {
     return ESP_OK;
 }
 
-esp_err_t GpioInterruptManager::registerInterrupt(
-    gpio_num_t pin, EdgeType edge, GpioPull pull,
-    std::function<void(gpio_num_t)> callback) {
+esp_err_t GpioInterruptManager::registerInterrupt(gpio_num_t pin, EdgeType edge, GpioPull pull, std::function<void(gpio_num_t)> callback) {
     if (!initialized) {
         return ESP_ERR_INVALID_STATE;
     }
@@ -90,15 +88,12 @@ esp_err_t GpioInterruptManager::registerInterrupt(
     gpioConf.intr_type = toGpioIntrType(edge);
     gpioConf.mode = GPIO_MODE_INPUT;
     gpioConf.pin_bit_mask = (1ULL << pin);
-    gpioConf.pull_up_en =
-        (pull == GpioPull::Up) ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
-    gpioConf.pull_down_en =
-        (pull == GpioPull::Down) ? GPIO_PULLDOWN_ENABLE : GPIO_PULLDOWN_DISABLE;
+    gpioConf.pull_up_en = (pull == GpioPull::Up) ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE;
+    gpioConf.pull_down_en = (pull == GpioPull::Down) ? GPIO_PULLDOWN_ENABLE : GPIO_PULLDOWN_DISABLE;
 
     esp_err_t ret = gpio_config(&gpioConf);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "GPIO config failed for pin %d: %s", pin,
-                 esp_err_to_name(ret));
+        ESP_LOGE(TAG, "GPIO config failed for pin %d: %s", pin, esp_err_to_name(ret));
         return ret;
     }
 
@@ -112,8 +107,7 @@ esp_err_t GpioInterruptManager::registerInterrupt(
 
     ret = gpio_isr_handler_add(pin, gpioISR, &isrContexts[pinIdx]);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to add ISR handler for pin %d: %s", pin,
-                 esp_err_to_name(ret));
+        ESP_LOGE(TAG, "Failed to add ISR handler for pin %d: %s", pin, esp_err_to_name(ret));
         registrations[pinIdx].registered = false;
         registrations[pinIdx].callback = nullptr;
         return ret;
@@ -210,18 +204,18 @@ void GpioInterruptManager::dispatchTask(void* arg) {
     auto* self = static_cast<GpioInterruptManager*>(arg);
     GpioEvent event;
 
-    for (;;) {
-        if (xQueueReceive(self->eventQueue, &event, portMAX_DELAY) == pdTRUE) {
+    while (self->taskRunning) {
+        if (xQueueReceive(self->eventQueue, &event, pdMS_TO_TICKS(DISPATCH_TIMEOUT_MS)) == pdTRUE) {
             auto pinIdx = static_cast<size_t>(event.pin);
 
-            if (pinIdx < MAX_GPIO_PINS &&
-                self->registrations[pinIdx].registered &&
-                self->registrations[pinIdx].enabled &&
+            if (pinIdx < MAX_GPIO_PINS && self->registrations[pinIdx].registered && self->registrations[pinIdx].enabled &&
                 self->registrations[pinIdx].callback) {
                 self->registrations[pinIdx].callback(event.pin);
             }
         }
     }
+
+    vTaskDelete(nullptr);
 }
 
 gpio_int_type_t GpioInterruptManager::toGpioIntrType(EdgeType edge) {
@@ -237,9 +231,7 @@ gpio_int_type_t GpioInterruptManager::toGpioIntrType(EdgeType edge) {
     }
 }
 
-bool GpioInterruptManager::isValidPin(gpio_num_t pin) const {
-    return pin >= 0 && static_cast<size_t>(pin) < MAX_GPIO_PINS;
-}
+bool GpioInterruptManager::isValidPin(gpio_num_t pin) const { return pin >= 0 && static_cast<size_t>(pin) < MAX_GPIO_PINS; }
 
 }  // namespace GpioInterruptManager
 }  // namespace WroRobotSoftware
