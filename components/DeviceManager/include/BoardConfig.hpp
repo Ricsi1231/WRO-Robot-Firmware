@@ -81,10 +81,11 @@ static const MotionController::MotionControllerConfig motionConfig = {
 static const Encoder::EncoderConfig encoderConfig = {
     .pinA = GPIO_NUM_NC,
     .pinB = GPIO_NUM_NC,
-    .unitConfig = {
-        .low_limit = -32768,
-        .high_limit = 32767,
-    },
+    .unitConfig =
+        {
+            .low_limit = -32768,
+            .high_limit = 32767,
+        },
     .pulsesPerRevolution = 12,
     .filterThresholdNs = 1000,
     .rpmCalcPeriodUs = 50000,
@@ -95,17 +96,19 @@ static const Encoder::EncoderConfig encoderConfig = {
     .openCollectorInputs = false,
     .rpmBlendThreshold = 60,
     .rpmBlendBand = 20,
-    .speedFilter = {
-        .filterType = Encoder::SpeedFilterType::EMA,
-        .emaAlpha = 0.3f,
-        .iirCutoffHz = 5.0f,
-        .sampleRateHz = 20,
-    },
-    .direction = {
-        .hysteresisThreshold = 2,
-        .debounceTimeMs = 50,
-        .enableHysteresis = true,
-    },
+    .speedFilter =
+        {
+            .filterType = Encoder::SpeedFilterType::EMA,
+            .emaAlpha = 0.3f,
+            .iirCutoffHz = 5.0f,
+            .sampleRateHz = 20,
+        },
+    .direction =
+        {
+            .hysteresisThreshold = 2,
+            .debounceTimeMs = 50,
+            .enableHysteresis = true,
+        },
 };
 
 static const ReflectanceSensor::ReflectanceSensorConfig reflectanceConfig = {
@@ -113,20 +116,22 @@ static const ReflectanceSensor::ReflectanceSensorConfig reflectanceConfig = {
     .adcChannel = ADC_CHANNEL_0,
     .attenuation = ADC_ATTEN_DB_12,
     .oversampleCount = 8,
-    .filter = {
-        .filterType = ReflectanceSensor::SignalFilterType::Ema,
-        .emaAlpha = 0.3f,
-        .iirCutoffHz = 5.0f,
-        .sampleRateHz = 50,
-    },
-    .classification = {
-        .targets = {},
-        .targetCount = 0,
-        .hysteresisVoltage = 0.05f,
-        .minStableTimeMs = 100,
-        .saturationVoltage = 3.2f,
-        .noObjectVoltage = 0.1f,
-    },
+    .filter =
+        {
+            .filterType = ReflectanceSensor::SignalFilterType::Ema,
+            .emaAlpha = 0.3f,
+            .iirCutoffHz = 5.0f,
+            .sampleRateHz = 50,
+        },
+    .classification =
+        {
+            .targets = {},
+            .targetCount = 0,
+            .hysteresisVoltage = 0.05f,
+            .minStableTimeMs = 100,
+            .saturationVoltage = 3.2f,
+            .noObjectVoltage = 0.1f,
+        },
     .sampleIntervalMs = 20,
     .taskStackSize = 3072,
     .taskPriority = 4,

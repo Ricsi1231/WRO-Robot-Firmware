@@ -56,13 +56,7 @@ esp_err_t DeviceManager::start() {
         return ret;
     }
 
-    BaseType_t taskRet = xTaskCreate(
-        mainTaskEntry,
-        "DeviceManager",
-        config.mainTaskStackSize,
-        this,
-        config.mainTaskPriority,
-        &mainTaskHandle);
+    BaseType_t taskRet = xTaskCreate(mainTaskEntry, "DeviceManager", config.mainTaskStackSize, this, config.mainTaskPriority, &mainTaskHandle);
 
     if (taskRet != pdPASS) {
         ESP_LOGE(TAG, "Failed to create main task");
@@ -135,9 +129,7 @@ esp_err_t DeviceManager::startComponents() {
     return ESP_OK;
 }
 
-void DeviceManager::mainTaskEntry(void* param) {
-    static_cast<DeviceManager*>(param)->mainTaskLoop();
-}
+void DeviceManager::mainTaskEntry(void* param) { static_cast<DeviceManager*>(param)->mainTaskLoop(); }
 
 void DeviceManager::mainTaskLoop() {
     while (taskRunning) {
